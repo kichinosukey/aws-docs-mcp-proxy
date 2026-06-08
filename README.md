@@ -32,3 +32,12 @@ npm test
 ```sh
 npm run smoke:live -- "Amazon EBS use case"
 ```
+
+## MCP Client Configuration
+
+Point your MCP client at the local executable:
+
+```toml
+[mcp_servers.aws_docs]
+command = "/Users/kichinosukey-mba/projects/aws-docs-mcp-proxy/bin/aws-docs-mcp-proxy.js"
+```
