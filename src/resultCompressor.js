@@ -55,10 +55,12 @@ export function compressSearchResult(result, { limit = 3, contextChars = 360 } =
 }
 
 function stripToc(content) {
-  return content
-    .replace(/Table of Contents:\n(?:- .*\n)+\n?/m, "")
+  const withoutToc = content
+    .replace(/Table of Contents:\n(?:\s*- .*\n)+\n?/m, "")
     .replace(/^Note: Page redirected.*\n\n/m, "")
     .trim();
+  const firstHeading = withoutToc.search(/^#\s+/m);
+  return firstHeading > 0 ? withoutToc.slice(firstHeading).trim() : withoutToc;
 }
 
 function titleFromContent(content) {

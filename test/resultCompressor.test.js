@@ -59,6 +59,47 @@ test("compressReadResult returns compact document content", () => {
   assert.equal(result.next_start_index, 4000);
 });
 
+test("compressReadResult strips nested table of contents blocks", () => {
+  const result = compressReadResult({
+    content: [{
+      type: "text",
+      text: JSON.stringify({
+        content: {
+          result: [{
+            status: "SUCCESS",
+            url: "https://aws.amazon.com/ebs/",
+            content: "# Amazon Elastic Block Store\n\nTable of Contents:\n- What is Amazon EBS? (char 571-1162)\n  - Benefits of Amazon EBS (char 1163-2507)\n    - Scale fast (char 1190-1355)\n\nAmazon EBS is block storage for EC2.",
+            truncated: false
+          }]
+        }
+      })
+    }]
+  });
+
+  assert.equal(result.content, "Amazon EBS is block storage for EC2.");
+});
+
+test("compressReadResult strips leading navigation before the first heading", () => {
+  const result = compressReadResult({
+    content: [{
+      type: "text",
+      text: JSON.stringify({
+        content: {
+          result: [{
+            status: "SUCCESS",
+            url: "https://aws.amazon.com/ebs/",
+            content: "Amazon Elastic Block Store\n\n* [Overview](/ebs/)\n* Features\n\n# Amazon Elastic Block Store\n\nEasy to use block storage.",
+            truncated: false
+          }]
+        }
+      })
+    }]
+  });
+
+  assert.equal(result.title, "Amazon Elastic Block Store");
+  assert.equal(result.content, "Easy to use block storage.");
+});
+
 test("extractEvidencePoints returns short lines", () => {
   const points = extractEvidencePoints("First useful sentence. Second useful sentence. Third useful sentence.", 2);
   assert.deepEqual(points, ["First useful sentence.", "Second useful sentence."]);
