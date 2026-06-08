@@ -1,14 +1,21 @@
 {
   "name": "aws-docs-mcp-proxy",
   "version": "0.1.0",
+  "description": "Local MCP server with compact AWS documentation tools for coding agents",
   "private": true,
+  "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kichinosukey/aws-docs-mcp-proxy.git"
+  },
   "bin": {
     "aws-docs-mcp-proxy": "bin/aws-docs-mcp-proxy.js"
   },
   "scripts": {
     "test": "node --test",
-    "smoke:live": "node scripts/smoke-live.js"
+    "smoke:live": "node scripts/smoke-live.js",
+    "benchmark": "node scripts/benchmark.js"
   },
   "engines": {
     "node": ">=20"
