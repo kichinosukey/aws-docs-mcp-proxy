@@ -1,0 +1,16 @@
+{
+  "name": "aws-docs-mcp-proxy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "aws-docs-mcp-proxy": "bin/aws-docs-mcp-proxy.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "smoke:live": "node scripts/smoke-live.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
