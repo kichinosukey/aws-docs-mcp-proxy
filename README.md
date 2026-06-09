@@ -44,22 +44,19 @@ The proxy does not generate final answers, execute AWS CLI commands, or mutate A
 
 ## Quick start
 
+Prerequisites: Node.js 20+, `aws login`, macOS or Linux.
+
 ```sh
-git clone https://github.com/kichinosukey/aws-docs-mcp-proxy.git
-cd aws-docs-mcp-proxy
-npm test          # optional
+curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/download/install.sh | bash
 ```
+
+Restart your MCP client (Cursor, Codex, or Claude Code). The installer configures global `aws_docs` automatically.
 
 ## Requirements
 
-- Node.js 20+
-- AWS authentication that can access the remote AWS MCP endpoint
+- AWS authentication that can access the remote AWS MCP endpoint (`aws login`)
 
-If authentication expires, run:
-
-```sh
-aws login
-```
+If authentication expires, run `aws login` again.
 
 ## Test
 
@@ -73,7 +70,16 @@ npm test
 npm run smoke:live -- "Amazon EBS use case"
 ```
 
-## MCP Client Configuration
+## Advanced / Manual setup
+
+<details>
+<summary>Git clone and manual MCP client configuration</summary>
+
+```sh
+git clone https://github.com/kichinosukey/aws-docs-mcp-proxy.git
+cd aws-docs-mcp-proxy
+npm test          # optional
+```
 
 Point your MCP client at the cloned executable (use your actual clone path):
 
@@ -95,10 +101,14 @@ command = "/path/to/aws-docs-mcp-proxy/bin/aws-docs-mcp-proxy.js"
 }
 ```
 
+</details>
+
 ## Troubleshooting
 
 | Symptom | Fix |
 |---------|-----|
+| `install.sh` fails on Node version | Install Node.js 20+ |
+| Installer skips a client | Config file missing or invalid JSON/TOML — fix manually then re-run |
 | `AWS MCP unavailable` or HTTP 401/403 | Run `aws login` and retry |
 | MCP client cannot start the server | Use an absolute path to `bin/aws-docs-mcp-proxy.js` |
 | `npm run benchmark` fails without credentials | Expected — README table values come from a prior authenticated run |
