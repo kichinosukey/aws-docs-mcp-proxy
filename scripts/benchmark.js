@@ -1,4 +1,5 @@
 import { AwsMcpClient } from "../src/awsMcpClient.js";
+import { DocCache } from "../src/docCache.js";
 import { DocsEvidenceService } from "../src/docsEvidenceService.js";
 import { AwsDocsMcpServer } from "../src/mcpServer.js";
 import { compressSearchResult, compressReadResult } from "../src/resultCompressor.js";
@@ -40,18 +41,22 @@ async function proxyToolCatalogChars() {
 async function main() {
   const query = process.argv.slice(2).join(" ") || "Amazon EBS use case";
 
+  const clientInitStart = Date.now();
   const client = new AwsMcpClient();
   await client.initialize();
+  const clientInitMs = Date.now() - clientInitStart;
 
   const toolsResult = await client.request("tools/list", {});
   const tools = toolsResult.tools ?? [];
   const toolsJson = JSON.stringify(tools);
 
+  const searchStart = Date.now();
   const rawSearch = await client.callTool("aws___search_documentation", {
     search_phrase: query,
     topics: ["general"],
     limit: 3
   });
+  const searchMs = Date.now() - searchStart;
   const rawSearchText = rawSearch.content?.[0]?.text ?? "";
   const compactSearchText = JSON.stringify(compressSearchResult(rawSearch, { limit: 3 }));
 
@@ -59,10 +64,13 @@ async function main() {
   const topUrl = parsed?.content?.result?.[0]?.url;
 
   let readResponse = null;
+  let readMs = 0;
   if (topUrl) {
+    const readStart = Date.now();
     const rawRead = await client.callTool("aws___read_documentation", {
       requests: [{ url: topUrl, max_length: 10000 }]
     });
+    readMs = Date.now() - readStart;
     const rawReadText = rawRead.content?.[0]?.text ?? "";
     const compactReadText = JSON.stringify(compressReadResult(rawRead, { maxChars: 4000 }));
     readResponse = {
@@ -73,9 +81,18 @@ async function main() {
     };
   }
 
-  const service = new DocsEvidenceService({ client });
-  const evidence = await service.evidence({ question: query });
-  const evidenceText = JSON.stringify(evidence);
+  const cache = new DocCache();
+  const service = new DocsEvidenceService({ client, cache });
+
+  const evidenceColdStart = Date.now();
+  const evidenceCold = await service.evidence({ question: query });
+  const evidenceColdMs = Date.now() - evidenceColdStart;
+
+  const evidenceCachedStart = Date.now();
+  const evidenceCached = await service.evidence({ question: query });
+  const evidenceCachedMs = Date.now() - evidenceCachedStart;
+
+  const evidenceText = JSON.stringify(evidenceCold);
 
   const proxyCatalogChars = await proxyToolCatalogChars();
   const rawPerQuestionChars = rawSearchText.length + (readResponse?.raw_chars ?? 0);
@@ -83,6 +100,13 @@ async function main() {
   const summary = {
     measured_at: new Date().toISOString().slice(0, 10),
     query,
+    latency_ms: {
+      client_init: clientInitMs,
+      search: searchMs,
+      read: readMs,
+      evidence_cold: evidenceColdMs,
+      evidence_cached: evidenceCachedMs
+    },
     tool_catalog: {
       full_aws_mcp: {
         tools: tools.length,
@@ -104,7 +128,8 @@ async function main() {
     read_response: readResponse,
     evidence_one_shot: {
       chars: evidenceText.length,
-      approx_tokens: approxTokens(evidenceText.length)
+      approx_tokens: approxTokens(evidenceText.length),
+      cache_hit: evidenceCached.timing_ms?.cache
     },
     per_question: {
       full_aws_mcp_search_plus_read_chars: rawPerQuestionChars,
