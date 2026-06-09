@@ -6,7 +6,7 @@ function normalizeQuery(query) {
 }
 
 export function searchCacheKey({ query, topics, limit }) {
-  const normalizedTopics = [...topics].sort().join(",");
+  const normalizedTopics = [...topics].sort().map((topic) => topic.toLowerCase()).join(",");
   return `search:${normalizeQuery(query)}:${normalizedTopics}:${limit}`;
 }
 

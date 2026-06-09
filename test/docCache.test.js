@@ -10,7 +10,7 @@ import {
 test("searchCacheKey normalizes query and topics", () => {
   const key = searchCacheKey({
     query: "  Amazon   EBS  ",
-    topics: ["general", "reference_documentation"],
+    topics: ["General", "reference_documentation"],
     limit: 3
   });
   assert.equal(key, "search:amazon ebs:general,reference_documentation:3");
