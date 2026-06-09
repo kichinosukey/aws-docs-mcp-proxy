@@ -1,7 +1,7 @@
 import os from "node:os";
 import path from "node:path";
 
-const HOME = os.homedir();
+const HOME = process.env.HOME ?? os.homedir();
 const SHARE_ROOT = path.join(HOME, ".local/share/aws-docs-mcp-proxy");
 
 export function commandPath() {
