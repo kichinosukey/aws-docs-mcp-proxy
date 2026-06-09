@@ -1,0 +1,14 @@
+---
+description: Efficient aws_docs MCP usage — one evidence call, concise answers
+globs:
+alwaysApply: false
+---
+
+# AWS Docs MCP efficiency
+
+When using `aws_docs` MCP tools:
+
+1. Call `aws_docs_evidence` once with the user's question. Do not call `aws_docs_search` or `aws_docs_read` afterward unless evidence is empty or clearly irrelevant.
+2. Answer concisely. For multiple-choice questions: state the answer, one short citation, brief rejection of wrong options. Skip large tables unless asked.
+3. Do not add exploratory tool calls "for thoroughness" on simple documentation lookups.
+4. Use `timing_ms` in tool responses only for debugging when the user asks about latency.

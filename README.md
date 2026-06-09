@@ -42,6 +42,29 @@ npm run benchmark -- "Amazon EBS use case"
 
 The proxy does not generate final answers, execute AWS CLI commands, or mutate AWS resources.
 
+## Agent best practices
+
+- Call **`aws_docs_evidence` once** per documentation question. It already runs search and read internally.
+- Do not chain `aws_docs_evidence` → `aws_docs_search` → `aws_docs_read` unless the first result is empty or clearly wrong.
+- Prefer concise final answers when the user only needs a short conclusion.
+- Tool responses include `timing_ms` to separate MCP latency from model generation time.
+- Optional: paste question text instead of screenshots to skip client-side image preprocessing.
+
+### Cache
+
+Responses are cached in memory for 10 minutes (override with `AWS_DOCS_CACHE_TTL_MS`). Repeat identical search/read/evidence calls return faster with `timing_ms.cache.*_hit: true`.
+
+### Cursor (Phase 1)
+
+Copy the rule template into your Cursor rules directory:
+
+```sh
+mkdir -p ~/.cursor/rules
+cp docs/agent-guidance/cursor-aws-docs-mcp-efficiency.mdc ~/.cursor/rules/
+```
+
+Restart or reload Cursor so the rule is picked up.
+
 ## Quick start
 
 Prerequisites: Node.js 20+, `aws login`, macOS or Linux.
