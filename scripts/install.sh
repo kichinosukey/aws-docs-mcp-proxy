@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO="kichinosukey/aws-docs-mcp-proxy"
 HOME="${HOME:-$(
   cd ~ && pwd
@@ -97,8 +98,24 @@ warn_path() {
   esac
 }
 
+is_dry_run() {
+  for arg in "$@"; do
+    if [[ "$arg" == "--dry-run" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 main() {
   check_node_version
+
+  if is_dry_run "$@"; then
+    echo "Dry run: skipped download and install; showing config changes only."
+    node "$SCRIPT_DIR/configure-clients.js" "$@"
+    exit 0
+  fi
+
   require_command tar
   if [[ "${AWS_DOCS_INSTALL_SOURCE:-}" != "local" ]]; then
     require_command curl

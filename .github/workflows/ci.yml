@@ -1,0 +1,28 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run tests
+        run: npm test
+      - name: Build release tarball
+        run: |
+          chmod +x scripts/*.sh
+          bash scripts/build-release-tarball.sh 0.2.0
+      - name: Dry-run install smoke test
+        run: |
+          HOME=/tmp/ci-install-test mkdir -p /tmp/ci-install-test/.cursor
+          echo '{}' > /tmp/ci-install-test/.cursor/mcp.json
+          HOME=/tmp/ci-install-test \
+            INSTALL_TARBALL="$(pwd)/.release/aws-docs-mcp-proxy-0.2.0.tar.gz" \
+            AWS_DOCS_INSTALL_SOURCE=local \
+            bash scripts/install.sh --dry-run --yes --clients cursor

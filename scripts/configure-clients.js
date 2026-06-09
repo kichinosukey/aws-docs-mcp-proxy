@@ -12,9 +12,20 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === "--dry-run") opts.dryRun = true;
     else if (arg === "--yes") opts.assumeYes = true;
-    else if (arg === "--clients") opts.clients = argv[++i].split(",").map((s) => s.trim());
+    else if (arg === "--clients") {
+      const value = argv[++i];
+      if (value === undefined || value.startsWith("--") || value.trim() === "") {
+        console.error("error: --clients requires a comma-separated client list");
+        process.exit(1);
+      }
+      opts.clients = value.split(",").map((s) => s.trim());
+    }
   }
   return opts;
+}
+
+function formatClientList(clients) {
+  return clients.length > 0 ? clients.join(", ") : "(none)";
 }
 
 async function main() {
@@ -37,7 +48,16 @@ async function main() {
     console.log(`${clientName}: ${result.status}${result.reason ? ` (${result.reason})` : ""}`);
   }
 
-  const failed = results.filter((r) => r.status === "failed");
+  const updated = results.filter((r) => r.status === "updated" || r.status === "dry-run").map((r) => r.client);
+  const skipped = results.filter((r) => r.status === "skipped").map((r) => r.client);
+  const failed = results.filter((r) => r.status === "failed").map((r) => r.client);
+
+  console.log("");
+  console.log("Done. Restart your MCP clients to load aws_docs.");
+  console.log(`Updated: ${formatClientList(updated)}`);
+  console.log(`Skipped: ${formatClientList(skipped)}`);
+  console.log(`Failed: ${formatClientList(failed)}`);
+
   if (failed.length > 0) process.exitCode = 1;
 }
 
