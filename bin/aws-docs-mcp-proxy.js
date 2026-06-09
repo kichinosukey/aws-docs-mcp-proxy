@@ -2,6 +2,7 @@
 
 import readline from "node:readline";
 import { AwsMcpClient } from "../src/awsMcpClient.js";
+import { DocCache, resolveCacheTtlMs } from "../src/docCache.js";
 import { DocsEvidenceService } from "../src/docsEvidenceService.js";
 import { AwsDocsMcpServer } from "../src/mcpServer.js";
 
@@ -9,7 +10,8 @@ async function main() {
   const client = new AwsMcpClient();
   await client.initialize();
 
-  const service = new DocsEvidenceService({ client });
+  const cache = new DocCache({ ttlMs: resolveCacheTtlMs() });
+  const service = new DocsEvidenceService({ client, cache });
   const server = new AwsDocsMcpServer({ service });
 
   console.error("aws-docs-mcp-proxy ready");
