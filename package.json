@@ -14,6 +14,8 @@
   },
   "scripts": {
     "test": "node --test",
+    "test:configure": "node --test test/configure",
+    "build:tarball": "bash scripts/build-release-tarball.sh",
     "smoke:live": "node scripts/smoke-live.js",
     "benchmark": "node scripts/benchmark.js"
   },
