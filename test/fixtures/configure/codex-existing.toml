@@ -1,0 +1,8 @@
+[mcp_servers.aws_docs]
+command = "/old/path"
+
+[mcp_servers.aws_docs.tools.aws_docs_search]
+approval_mode = "approve"
+
+[mcp_servers.other]
+command = "npx"
