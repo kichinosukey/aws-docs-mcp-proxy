@@ -1,0 +1,1 @@
+{ "mcpServers": { "other": { "command": "npx", "args": ["other-mcp"] } } }

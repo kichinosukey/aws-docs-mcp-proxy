@@ -1,0 +1,1 @@
+{ "mcpServers": { "aws_docs": { "command": "/old/path" }, "other": { "command": "npx" } } }
