@@ -17,6 +17,24 @@ function runNode(args, env) {
   });
 }
 
+test("configure-clients without --clients prints usage and does not write", async () => {
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "mcp-cfg-"));
+  const home = path.join(tmp, "home");
+  const cursorDir = path.join(home, ".cursor");
+  await fs.mkdir(cursorDir, { recursive: true });
+  const target = path.join(cursorDir, "mcp.json");
+  await fs.writeFile(target, "{}\n");
+
+  const script = path.join(import.meta.dirname, "../../scripts/configure-clients.js");
+  const { code, stdout } = await runNode([script], { HOME: home });
+
+  assert.equal(code, 0);
+  assert.match(stdout, /No MCP client selected/);
+  assert.match(stdout, /--clients cursor/);
+  const unchanged = await fs.readFile(target, "utf8");
+  assert.equal(unchanged, "{}\n");
+});
+
 test("configure-clients dry-run updates fixture cursor config", async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "mcp-cfg-"));
   const home = path.join(tmp, "home");

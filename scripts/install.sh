@@ -107,10 +107,34 @@ is_dry_run() {
   return 1
 }
 
+has_clients_flag() {
+  for arg in "$@"; do
+    if [[ "$arg" == "--clients" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+print_configure_hint() {
+  local configure_js="$SHARE_ROOT/current/scripts/configure-clients.js"
+  echo ""
+  echo "Binary installed. Configure one MCP client (pick the agent you use):"
+  echo "  node \"$configure_js\" --clients cursor"
+  echo "  node \"$configure_js\" --clients codex"
+  echo "  node \"$configure_js\" --clients claude"
+  echo ""
+  echo "Or re-run the installer with --clients, for example:"
+  echo "  curl -fsSL https://github.com/$REPO/releases/latest/download/install.sh | bash -s -- --clients cursor"
+}
+
 main() {
   check_node_version
 
   if is_dry_run "$@"; then
+    if ! has_clients_flag "$@"; then
+      die "--dry-run requires --clients <name> (cursor, codex, or claude)"
+    fi
     echo "Dry run: skipped download and install; showing config changes only."
     node "$SCRIPT_DIR/configure-clients.js" "$@"
     exit 0
@@ -126,7 +150,11 @@ main() {
   link_install
   warn_path
 
-  node "$SHARE_ROOT/current/scripts/configure-clients.js" "$@"
+  if has_clients_flag "$@"; then
+    node "$SHARE_ROOT/current/scripts/configure-clients.js" "$@"
+  else
+    print_configure_hint
+  fi
 }
 
 main "$@"

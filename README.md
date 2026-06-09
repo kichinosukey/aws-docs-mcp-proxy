@@ -46,16 +46,31 @@ The proxy does not generate final answers, execute AWS CLI commands, or mutate A
 
 Prerequisites: Node.js 20+, `aws login`, macOS or Linux.
 
+**Step 1 — install the binary** (does not touch MCP client config):
+
 ```sh
 curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/download/install.sh | bash
 ```
 
-Restart your MCP client (Cursor, Codex, or Claude Code). The installer configures global `aws_docs` automatically.
-
-To upgrade or overwrite an existing `aws_docs` entry (required when reinstalling via `curl | bash`, which cannot show y/N prompts):
+**Step 2 — configure the agent you use** (one command per agent):
 
 ```sh
-curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/download/install.sh | bash -s -- --yes
+# Cursor
+curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/download/install.sh | bash -s -- --clients cursor
+
+# Codex
+curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/download/install.sh | bash -s -- --clients codex
+
+# Claude Code
+curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/download/install.sh | bash -s -- --clients claude
+```
+
+Restart the MCP client you configured.
+
+To overwrite an existing `aws_docs` entry (required when reinstalling via `curl | bash`, which cannot show y/N prompts), add `--yes`:
+
+```sh
+curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/download/install.sh | bash -s -- --clients cursor --yes
 ```
 
 ## Requirements
