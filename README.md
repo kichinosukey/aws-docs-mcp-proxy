@@ -52,6 +52,12 @@ curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/do
 
 Restart your MCP client (Cursor, Codex, or Claude Code). The installer configures global `aws_docs` automatically.
 
+To upgrade or overwrite an existing `aws_docs` entry (required when reinstalling via `curl | bash`, which cannot show y/N prompts):
+
+```sh
+curl -fsSL https://github.com/kichinosukey/aws-docs-mcp-proxy/releases/latest/download/install.sh | bash -s -- --yes
+```
+
 ## Requirements
 
 - AWS authentication that can access the remote AWS MCP endpoint (`aws login`)
@@ -109,6 +115,7 @@ command = "/path/to/aws-docs-mcp-proxy/bin/aws-docs-mcp-proxy.js"
 |---------|-----|
 | `install.sh` fails on Node version | Install Node.js 20+ |
 | Installer skips a client | Config file missing or invalid JSON/TOML — fix manually then re-run |
+| Prompt appears then install ends (`curl \| bash`) | Piped installs are non-interactive; re-run with `bash -s -- --yes` (see Quick start) |
 | `AWS MCP unavailable` or HTTP 401/403 | Run `aws login` and retry |
 | MCP client cannot start the server | Use an absolute path to `bin/aws-docs-mcp-proxy.js` |
 | `npm run benchmark` fails without credentials | Expected — README table values come from a prior authenticated run |

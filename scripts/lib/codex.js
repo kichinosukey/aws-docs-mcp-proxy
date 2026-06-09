@@ -71,7 +71,12 @@ export async function configure({ command, dryRun, assumeYes }) {
 
   if (hasAwsDocsToml(text)) {
     const ok = await confirmOverwrite(`${name}: aws_docs is already configured. Overwrite?`, { assumeYes });
-    if (!ok) return { status: "skipped", reason: "user declined overwrite" };
+    if (!ok) {
+      return {
+        status: "skipped",
+        reason: "overwrite not confirmed (use --yes when installing via curl | bash)"
+      };
+    }
   }
 
   const next = upsertAwsDocsCommand(text, command);
